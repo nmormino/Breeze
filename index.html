@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="utf-8">
+    <title>Breeze CSV Parser</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/skeleton.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="icon" type="image/png" href="images/favicon.png">
+    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+
+</head>
+<body>
+    <div class="csvUploader">
+        <input type="file" id="csvFile">
+        <button type="submit" onclick="uploadCSV()" class="button-primary">
+            Upload CSV
+        </button>
+    </div>
+    <div class="csvWorking">
+        <div class="spinner" id="csvSpinner">
+            <i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i>
+        </div>
+        Processing CSV
+    </div>
+    <div class="allDone">
+        <div>
+            <i class="fa fa-check-square fa-3x succsess-text" aria-hidden="true"></i>
+        </div>
+        All Done!
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="three columns">
+
+            </div>
+
+            <div class="nine columns">
+
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/4.3.7/papaparse.js"></script>
+
+    <script>
+
+    function uploadCSV(){
+        $('.csvUploader').slideUp(function() {
+            $('.csvWorking').slideDown();
+        });
+
+        $("#csvFile").parse({
+            config: {
+                header: true,
+                complete: function(results, file) {
+
+                    var data = results.data;
+                    $.post('bootstrap.php?import', data, function(message){
+                        if(message == 'success') {
+                            
+                        } else {
+
+                        }
+                    });
+                }
+            },
+            complete: function() {
+                //lets use set timeout to give some breathing room to the messages
+                setTimeout(function(){
+                    $('.allDone').show();
+                    $('.csvWorking').hide();
+                    //set time out again here otherwise it would be really fast.
+                    setTimeout(function(){
+                        $('.allDone').slideUp(function(){
+                            $('.csvUploader').slideDown();
+                        });
+                    }, 3000);
+                },2000);
+            }
+        });
+    }
+    </script>
+</body>
+</html>

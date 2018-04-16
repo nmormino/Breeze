@@ -1,0 +1,16 @@
+.csvUploader, .csvWorking, .allDone {
+    width:100%;
+    font-size:12px;
+    padding-top:5px;
+    background-color:#eee;
+    text-align:center;
+}
+.csvWorking {
+    display:none;
+}
+.allDone {
+    display:none;
+}
+.succsess-text {
+    color:green;
+}
