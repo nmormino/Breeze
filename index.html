@@ -36,18 +36,25 @@
 
     <div class="container">
         <h3>People Groups</h3>
+
+        <div class="spinner" id="groupSpinner">
+            <i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i>
+        </div>
         <div id="groups"></div>
     </div>
+
     <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tablesorter@2.30.1/dist/js/jquery.tablesorter.combined.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/4.3.7/papaparse.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.11/handlebars.min.js"></script>
 
     <script id="groupTemplate" type="text/x-handlebars-template">
         {{#each groups}}
             <div class="group">
-                <strong class="group-name">Group: {{ group_name }}</strong>
+                <div class="group-name" onclick="showGroup($(this))">Group: {{ group_name }}</div>
+                {{#if people}}
                 <div class="people" id="group-{{ group_id }}">
-                    <table class="u-full-width">
+                    <table class="u-full-width" sortable>
                         <thead>
                             <th>id</th>
                             <th>First Name</th>
@@ -68,6 +75,11 @@
                         </tbody>
                     </table>
                 </div>
+                {{else}}
+                <div class="alert">
+                    There are no people in this group.
+                </div>
+                {{/if}}
             </div>
         {{/each}}
     </script>
@@ -81,16 +93,36 @@
     });
 
     function populateContent() {
+        $('#groupSpinner').show();
 
-        //if groups are already hidden don't fade out
         if(groupContainer.css('display') != 'none') {
             groupContainer.fadeOut(function(){
-                groupContainer.html('');
+                getGroups()
             });
+        } else {
+            getGroups();
         }
 
+    }
+
+    function getGroups() {
         $.get('bootstrap.php?action=get-records&time='+Date.now(), function(data){
-            groupContainer.html(groups(data)).fadeIn();
+            if(data.groups.length > 0) {
+                groupContainer.html(groups(data));
+                $('.people:first').addClass('show');
+                $('[sortable]').tablesorter({
+                    widgets : ['zebra','columns']
+                });
+            } else {
+                groupContainer.html($('<div class="alert">').text('There are currently no groups in your database.'));
+            }
+
+            //this ensures our spinner spins for at least half a second to avoid any spinner flicker
+            setTimeout(function(){
+                $('#groupSpinner').hide();
+                groupContainer.fadeIn();
+            }, 500);
+
         }, 'json');
     }
 
@@ -106,6 +138,10 @@
                 skipEmptyLines: true,
                 complete: function(results, file) {
 
+                    //regenerate the file input so it can be used again.
+                    $('#csvFile').remove();
+                    $('.csvUploader').append('<input type="file" id="csvFile" onchange="uploadCSV()">');
+
                     var errors = results.errors;
                     console.log(results);
                     var data = trimObj(results.data);
@@ -113,6 +149,8 @@
                     $.post('bootstrap.php?action=import', {csv:data}, function(results){
 
                         processMessages(results);
+
+                        populateContent();
 
                     }, 'json');
                 }
@@ -144,6 +182,9 @@
         //if there are any successes, list them at the bottom.
         if(successCount > 0) {
             $('#alerts').append($('<div class="alert success">').text('('+successCount+' of '+totalCount+') '+(successCount>1?'records':'record')+' successfully imported.'));
+
+            //if we're successful, repopulate the content
+            populateContent();
         }
 
         showMessages();
@@ -169,6 +210,14 @@
             acc[key.trim()] = typeof obj[key] == 'string'? obj[key].trim() : trimObj(obj[key]);
             return acc;
         }, Array.isArray(obj)? []:{});
+    }
+    function showGroup(elem) {
+        $('.people.show').slideUp(function(){
+            $(this).removeClass('show');
+            $(elem).siblings('.people').slideDown(function(){
+                $(this).addClass('show');
+            })
+        });
     }
     </script>
 </body>

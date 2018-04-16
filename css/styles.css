@@ -1,9 +1,10 @@
 .csvUploader, .csvWorking, #messages {
     width:100%;
     font-size:12px;
-    padding-top:5px;
+    padding:5px 15px 0px 15px;
     background-color:#eee;
     text-align:center;
+    margin-bottom:35px;
 }
 #csvFile {
     position:absolute;
@@ -18,12 +19,14 @@
 
 .alert {
     padding:10px;
-    background-color:#333;
+    background-color:#444;
     border:1px solid #222;
     color:#fff;
     border-radius:4px;
-    margin:0px 15px 10px 15px;
-    font-weight:bold;
+    margin:0px;
+    margin-bottom:10px;
+    font-weight:400;
+    letter-spacing:.05em;
 }
 .alert.error {
     background-color:#990000;
@@ -32,4 +35,47 @@
 .alert.success {
     background-color:#009900;
     border-color:#007700;
+}
+#groupSpinner {
+    padding:30px;
+    text-align:center;
+}
+#groups {
+    border:1px solid #ddd;
+    border-radius:4px;
+    overflow:hidden;
+}
+.group-name {
+    border-top:1px solid #ddd;
+    background-color:#eee;
+    font-weight:bold;
+    padding:15px;
+}
+.group:first-of-type .group-name {
+    border-top:0px;
+}
+.people {
+    padding:15px;
+    display:none;
+    border-top:1px solid #ddd;
+}
+.people.show {
+    display:block;
+}
+
+table thead tr th[aria-sort="ascending"]:before,
+table thead tr th[aria-sort="descending"]:before,
+table thead tr th[aria-sort="none"]:before {
+    display:inline-block;
+    float:right;
+    font-family: FontAwesome;
+}
+table thead tr th[aria-sort="ascending"]:before {
+    content:"\f0de";
+}
+table thead tr th[aria-sort="descending"]:before {
+    content:"\f0dd";
+}
+table thead tr th[aria-sort="none"]:before {
+    content:"\f0dc";
 }
