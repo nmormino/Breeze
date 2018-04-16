@@ -60,9 +60,10 @@
                 complete: function(results, file) {
 
                     var data = results.data;
-                    $.post('bootstrap.php?import', data, function(message){
+
+                    $.post('bootstrap.php?action=import', {csv:data}, function(message){
                         if(message == 'success') {
-                            
+
                         } else {
 
                         }
