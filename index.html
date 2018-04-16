@@ -15,10 +15,8 @@
 </head>
 <body>
     <div class="csvUploader">
-        <input type="file" id="csvFile">
-        <button type="submit" onclick="uploadCSV()" class="button-primary">
-            Upload CSV
-        </button>
+        <label for="csvFile" class="button button-primary">Import CSV</label>
+        <input type="file" id="csvFile" onchange="uploadCSV()">
     </div>
     <div class="csvWorking">
         <div class="spinner" id="csvSpinner">
@@ -26,11 +24,14 @@
         </div>
         Processing CSV
     </div>
-    <div class="allDone">
-        <div>
-            <i class="fa fa-check-square fa-3x succsess-text" aria-hidden="true"></i>
+    <div id="messages">
+        <div id="alerts">
+
         </div>
-        All Done!
+        <div>
+            <button type="button" onclick="dismissMessages();">Dismiss Messages</button>
+        </div>
+
     </div>
 
     <div class="container">
@@ -57,33 +58,77 @@
         $("#csvFile").parse({
             config: {
                 header: true,
+                dynamicTyping: true,
+                skipEmptyLines: true,
                 complete: function(results, file) {
 
-                    var data = results.data;
+                    var errors = results.errors;
+                    console.log(results);
+                    var data = trimObj(results.data);
 
-                    $.post('bootstrap.php?action=import', {csv:data}, function(message){
-                        if(message == 'success') {
+                    $.post('bootstrap.php?action=import', {csv:data}, function(results){
 
-                        } else {
+                        processMessages(results);
 
-                        }
-                    });
-                }
-            },
-            complete: function() {
-                //lets use set timeout to give some breathing room to the messages
-                setTimeout(function(){
-                    $('.allDone').show();
-                    $('.csvWorking').hide();
-                    //set time out again here otherwise it would be really fast.
-                    setTimeout(function(){
-                        $('.allDone').slideUp(function(){
-                            $('.csvUploader').slideDown();
-                        });
-                    }, 3000);
-                },2000);
+                    }, 'json');
+                },
+                error: function(err, file, inputElem, reason)
+	            {
+                    console.log(err);
+	            },
             }
         });
+    }
+    function processMessages(results){
+        var errorCount = 0;
+        var successCount = 0;
+        var totalCount = 0;
+
+        var errors = $('<div>');
+
+        //count results & add error alerts
+        for(row in results) {
+            totalCount++;
+            if(results[row].error) {
+                errorCount++;
+                errors.append($('<div class="alert error">').text(results[row].message));
+            } else {
+                successCount++;
+            }
+        }
+
+        if(errorCount > 0) {
+            $('#alerts').append(errors);
+        }
+
+        //if there are any successes, list them at the bottom.
+        if(successCount > 0) {
+            $('#alerts').append($('<div class="alert success">').text('('+successCount+' of '+totalCount+') '+(successCount>1?'records':'record')+' successfully imported.'));
+        }
+
+        showMessages();
+    }
+    function showMessages() {
+        setTimeout(function(){
+            $('#messages').show();
+            $('.csvWorking').hide();
+        }, 1000);
+    }
+    //slide away the messages container and clear the alerts
+    function dismissMessages() {
+        $('#messages').slideUp(function(){
+            $('#alerts').html('');
+            $('.csvUploader').slideDown();
+        })
+    }
+
+    //trim key/values for CSV if the CSV has spaces added after commas
+    function trimObj(obj) {
+        if (!Array.isArray(obj) && typeof obj != 'object') return obj;
+            return Object.keys(obj).reduce(function(acc, key) {
+            acc[key.trim()] = typeof obj[key] == 'string'? obj[key].trim() : trimObj(obj[key]);
+            return acc;
+        }, Array.isArray(obj)? []:{});
     }
     </script>
 </body>

@@ -1,16 +1,35 @@
-.csvUploader, .csvWorking, .allDone {
+.csvUploader, .csvWorking, #messages {
     width:100%;
     font-size:12px;
     padding-top:5px;
     background-color:#eee;
     text-align:center;
 }
-.csvWorking {
+#csvFile {
+    position:absolute;
+    top:-1000px;
+}
+.csvWorking, #messages {
     display:none;
 }
-.allDone {
-    display:none;
-}
-.succsess-text {
+.success-text {
     color:green;
+}
+
+.alert {
+    padding:10px;
+    background-color:#333;
+    border:1px solid #222;
+    color:#fff;
+    border-radius:4px;
+    margin:0px 15px 10px 15px;
+    font-weight:bold;
+}
+.alert.error {
+    background-color:#990000;
+    border-color:#770000;
+}
+.alert.success {
+    background-color:#009900;
+    border-color:#007700;
 }

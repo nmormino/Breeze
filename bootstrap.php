@@ -25,20 +25,18 @@ switch ($action) {
 
             $import = new Import($_POST['csv']);
             if(!$import->type) {
-                echo json_encode(['message'=>'Import Failed, invalid CSV.']);
-                return;
+                echo json_encode(['messages'=>['error'=>true, 'message'=>'Import Failed, invalid CSV.']]);
+                break;
             } else {
-                $import->process();
+                $results = $import->process();
+                echo json_encode($results);
+                break;
             }
 
         } else {
-            echo json_encode(['message'=>'Import Failed, invalid post data.']);
-            return;
+            echo json_encode([['error'=>true, 'message'=>'Import Failed, invalid post data.']]);
+            break;
         }
-
-        //do import person
-        $controller = new Person;
-        $controller->index();
         break;
     default:
         throw new Exception('Invalid action.');
