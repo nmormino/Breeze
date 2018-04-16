@@ -40,7 +40,7 @@ class Import {
         } elseif ($this->type == 'Group') {
             return $this->processGroups();
         } else {
-            throw new Exception('Unable to process invalid CSV.');
+            throw new \Exception('Unable to process invalid CSV.');
         }
     }
 
