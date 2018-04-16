@@ -3,6 +3,7 @@ include('vendor/autoload.php');
 
 use Illuminate\Database\Capsule\Manager as DB;
 use Library\Import;
+use Model\Group;
 
 //fire up the database layer
 $db = new DB;
@@ -37,6 +38,9 @@ switch ($action) {
             echo json_encode([['error'=>true, 'message'=>'Import Failed, invalid post data.']]);
             break;
         }
+        break;
+    case 'get-records':
+        echo json_encode(['groups'=>Group::with('people')->get()->toArray()]);
         break;
     default:
         throw new Exception('Invalid action.');
