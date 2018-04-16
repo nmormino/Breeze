@@ -9,7 +9,7 @@
     position:absolute;
     top:-1000px;
 }
-.csvWorking, #messages {
+.csvWorking, #messages, #groups {
     display:none;
 }
 .success-text {

@@ -35,20 +35,64 @@
     </div>
 
     <div class="container">
-        <div class="row">
-            <div class="three columns">
-
-            </div>
-
-            <div class="nine columns">
-
-            </div>
-        </div>
+        <h3>People Groups</h3>
+        <div id="groups"></div>
     </div>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/4.3.7/papaparse.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.11/handlebars.min.js"></script>
+
+    <script id="groupTemplate" type="text/x-handlebars-template">
+        {{#each groups}}
+            <div class="group">
+                <strong class="group-name">Group: {{ group_name }}</strong>
+                <div class="people" id="group-{{ group_id }}">
+                    <table class="u-full-width">
+                        <thead>
+                            <th>id</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Email Address</th>
+                            <th>State</th>
+                        </thead>
+                        <tbody>
+                            {{#each people }}
+                            <tr>
+                                <td>{{ person_id }}</td>
+                                <td>{{ first_name }}</td>
+                                <td>{{ last_name }}</td>
+                                <td>{{ email_address }}</td>
+                                <td>{{ state }}</td>
+                            </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {{/each}}
+    </script>
 
     <script>
+    var groups = Handlebars.compile($('#groupTemplate').html());
+    var groupContainer = $('#groups');
+
+    $(document).ready(function(){
+        populateContent();
+    });
+
+    function populateContent() {
+
+        //if groups are already hidden don't fade out
+        if(groupContainer.css('display') != 'none') {
+            groupContainer.fadeOut(function(){
+                groupContainer.html('');
+            });
+        }
+
+        $.get('bootstrap.php?action=get-records&time='+Date.now(), function(data){
+            groupContainer.html(groups(data)).fadeIn();
+        }, 'json');
+    }
 
     function uploadCSV(){
         $('.csvUploader').slideUp(function() {
@@ -71,11 +115,7 @@
                         processMessages(results);
 
                     }, 'json');
-                },
-                error: function(err, file, inputElem, reason)
-	            {
-                    console.log(err);
-	            },
+                }
             }
         });
     }
